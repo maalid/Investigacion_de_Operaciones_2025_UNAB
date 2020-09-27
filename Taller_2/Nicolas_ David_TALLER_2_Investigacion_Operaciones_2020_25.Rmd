@@ -1,0 +1,402 @@
+---
+title: "TALLER 2: MÉTODO SIMPLEX Y SOLUCIÓN DE PROBLEMAS DE PROGRAMACIÓN LINEAL USANDO lpSolve()"
+subtitle: "*Investigación de Operaciones - Ingeniería Civil Industrial - ADVANCE*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    fig_caption: true
+    number_sections: false
+    theme: cosmo
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+# **EJERCICIO 1.** 
+Usted es dueño de una fabrica de productos de plástico y tiene un importante contrato con una empresa de computadoras que implica la producción de cajas de plástico para impresoras portátiles. Las cajas de impresora se producen en dos máquinas de moldeo por inyección. La máquina $M100$ tiene una capacidad de producción de $20$ cajas de impresora por hora y la máquina $M200$ tiene una capacidad de $40$ cajas por hora. Ambas máquinas utilizan la misma materia prima química para producir las cajas de impresora; la $M100$ utiliza $40$ libras de materia prima por hora, y la $M200$ utiliza $50$ por hora. La empresa de computadoras requiere tantas cajas durante la semana que sigue como sea posible, y pagará $USD18$ por cada caja. Sin embargo, la siguiente semana es un período normal de vacaciones programadas para la mayor parte de los empleados de producción su empresa. Durante este tiempo, se efectúa el mantenimiento anual de todo el equipo de la planta y, debido al tiempo parado para mantenimiento, la $M100$ no estará disponible durante más de $15$ horas mientras que la $M200$ no estará disponible durante más de $10$ horas. Sin embargo, en razón del elevado costo de preparación involucrado en ambas máquinas, la administración requiere que las máquinas operen por lo menos durante $5$ horas. El proveedor de la materia química utilizada en el proceso de producción le ha informado que tendrá disponible un máximo de $1.000$ libras de la materia prima para la producción de la siguiente semana. El costo de la materia prima es de $USD6$ por libra. Además del costo de la materia prima, se estima que el costo horario de operación de la $M100$ y la $M200$ son de $USD50$ y $USD75$ dólares, respectivamente. Se requiere saber el número de horas que deberán estar operando las dos máquinas de modo de optimizar la utilidad por la venta de las cajas de plástico.
+
+(a) Plantee el problema como un Problema de Programación Lineal, definiendo claramente las variables de decisión, la función objetivo y las restricciones.  
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya. 
+
+<br>
+<br>
+## SOLUCIÓN.
+
+**(a) Definicion de las variables de decision.**
+$$
+\begin{array}{ll}
+x_1 : \text{Numero de horas trabajadas maquina 1} \\  
+x_2 : \text{Numero de horas trabajadas maquina 2}
+\end{array}
+$$
+**(b) Función objetivo (utilidad).**
+
+$$
+\begin{array}{ll}
+\max Z = 360x_1 + 720x_2  \\  
+\end{array}
+$$ 
+**(c) Restricciones.**
+
+$$
+\begin{array}{ll}
+ x_1 \leq 15 \ \text{(hrs maquina 1).} \\     
+ x_2 \leq 50 \ \text{(hrs maquina 2).} \\
+40x_1 + 50x_2  \geq 1000 \ \text{(Materia prima utilizada).} \\
+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2 \geq \ \ \ \ 5 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+
+**(e) Transcribimos el modelo anterior a R.** 
+
+* Coeficientes de la función objetivo. 
+```{r}
+C <- c(360, 720)  
+  
+C  
+```
+
+* Matriz de coeficientes de las restricciones
+
+```{r}
+A <- matrix(c(1, 0,
+               0, 1,
+               40, 50), ncol = 2, byrow = TRUE)
+
+A
+```
+* Direccion de las desigualdades de las restricciones
+
+```{r}
+D <- c("<=", "<=", "<=")
+
+D
+```
+* Coeficientes lado derecho de las restricciones
+
+```{r}
+B <- c(15, 50, 1000)
+
+B
+```
+
+**Plan optimo de produccion.** Resolvemos
+
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+
+**Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura).**
+
+```{r}
+sol$solution
+```
+$$
+\begin{array}{ll}
+\ Solucion: \text{Concluimos que la maquina 2 tiene Bque ser ocupada 20 hrs para realizar el stock necesario y obtener la maxima utilidad }
+  \\  
+\end{array}
+$$
+
+
+
+# **EJERCICIO 2.** 
+De acuerdo a las recomendaciones de un veterinario, un granjero debe darle a sus aves diariamente una dieta mínima que consite en $3$ unidades de hierro y $4$ unidades de vitaminas. El alimento que el granjero suministra a sus aves corresponde a maíz y trigo. Se sabe que cada kilógramo de maíz proporciona $2.5$ unidades de hierro y $1$ unidad de vitaminas mientras que cada kilógramo de trigo proporciona $1$ unidad de hierro y $2$ de vitaminas. El kilo de maíz cuesta $\$0.3$ y el de trigo $\$0.52$.
+
+
+(a) Plantee el problema como un Problema de Programación Lineal, definiendo claramente las variables de decisión, la función objetivo y las restricciones.    
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+Por escasez en el mercado, el granjero dispone ahora de solo $1$ kilógramo diario de trigo.
+
+(c) Usando el Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+<br>
+## SOLUCIÓN.
+
+**(a) Definicion de las variables de decision.**
+$$
+\begin{array}{ll}
+x_1 : \text{kg de maiz} \\  
+x_2 : \text{kg de trigo}
+\end{array}
+$$
+**(b) Función objetivo (utilidad).**
+
+$$
+\begin{array}{ll}
+\max Z = 0,3x_1 + 0.52x_2  \\  
+\end{array}
+$$ 
+**(c) Restricciones.**
+
+$$
+\begin{array}{ll}
+ 2.5x_1 + x_2 \geq 3 \ \text{(Hierro).} \\     
+ x_1 + 2x_2 \geq 4 \ \text{(vitaminas).} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+**(e) Transcribimos el modelo anterior a R.** 
+
+* Coeficientes de la función objetivo. 
+```{r}
+C <- c(0.3, 0.52)  
+  
+C  
+```
+* Matriz de coeficientes de las restricciones
+
+```{r}
+A <- matrix(c(2.5, 1,
+              1, 2), ncol = 2, byrow = TRUE)
+
+A
+```
+
+* Direccion de las desigualdades de las restricciones
+
+```{r}
+D <- c("<=", "<=")
+
+D
+```  
+
+* Coeficientes lado derecho de las restricciones
+
+```{r}
+B <- c(3, 4)
+
+B
+```
+**Plan optimo de produccion.** Resolvemos
+
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+**Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura).**
+
+```{r}
+sol$solution
+```
+
+
+  * Holgura primera restricción: 
+
+```{r}
+ 2.5*sol$solution[1] + 1*sol$solution[2] 
+```
+  * Holgura segunda restricción:
+
+```{r}
+1*sol$solution[1] + 2*sol$solution[2]
+```
+$$
+\begin{array}{ll}
+\  \text{Concluimos se requieren 0.5 kg de maiz y 1,75 kg de trigo }
+  \\  
+\end{array}
+$$  
+
+
+$$
+\begin{array}{ll}
+\ \text{si solo tenemos 1kg de trigo realizamos nuevamente el calculo}
+  \\  
+\end{array}
+$$ 
+$$
+\begin{array}{ll}
+ 2.5x_1 + x_2 \geq 3 \ \text{(Hierro).} \\     
+ x_1 + 2x_2 \geq 4 \ \text{(vitaminas).} \\
+x_2 \leq 1 \ \text{(1 kg de trigo maximo).} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+
+**(e) Transcribimos el modelo anterior a R.** 
+
+* Coeficientes de la función objetivo. 
+```{r}
+C <- c(0.3, 0.52)  
+  
+C  
+```
+* Matriz de coeficientes de las restricciones
+
+```{r}
+A <- matrix(c(2.5, 1,
+              1, 2,
+              0, 1), ncol = 2, byrow = TRUE)
+
+A
+```
+
+* Direccion de las desigualdades de las restricciones
+
+```{r}
+D <- c("<=", "<=", "<=")
+
+D
+```  
+
+* Coeficientes lado derecho de las restricciones
+
+```{r}
+B <- c(3, 4, 1)
+
+B
+```
+**Plan optimo de produccion.** Resolvemos
+
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+**Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura).**
+
+```{r}
+sol$solution
+```
+
+$$
+\begin{array}{ll}
+\ \text{Necesitaremos 0,8 kg de maiz y 1 kg de trigo para mantener a las gallinas sanas  }
+  \\  
+\end{array}
+$$ 
+
+# **EJERCICIO 3.** 
+Un fabricante de cocteles debe preparar, con $5$ bebidas de fruta, al menos $500$ litros de un ponche que contenga por lo menos $20\%$ de jugo de naranja, $10\%$ de jugo de pomelo y $5\%$ de jugo de arándano. De la bebida de fruta $A$ se disponen $200$ litros, y ésta contiene $40\%$ de jugo de naranja y $40\%$ de jugo de pomelo. De la bebida de fruta $B$ se disponen $400$ litros, y ésta contiene $5\%$ de jugo de naranja, $10\%$ de jugo de pomelo y $20\%$ de jugo de arándano. De la bebida de fruta $C$ se disponen $100$ litros, y ésta contiene $100\%$ de jugo de naranja. De la bebida de fruta $D$ se disponen $50$ litros, y ésta contiene $100\%$ de jugo de pomelo. De la bebida de fruta $E$ se disponen $800$ litros, y ésta no contiene ninguno de los tres tipos de jugos. Los costos por litro de bebida de cada tipo son los siguientes: $\$1.50$, $\$0.75$, $\$2.00$, $\$1.75$ y $\$0.25$.
+
+(a) Plantee el modelo de programación lineal que se genera, definiendo claramente las variables de decisión, la función objetivo y las restricciones.
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+
+
+## SOLUCIÓN.
+
+**(a) Definicion de las variables de decision.**
+
+$$
+\begin{array}{ll}
+x_1 : \text{Litros de jugo de naranja} \\  
+x_2 : \text{Litros de jgo de pomelo} \\ 
+x_3 : \text{Litros de jugo de arandano} \\ 
+x_4 : \text{Litros de jugo sin sabor } \\ 
+\end{array}
+$$
+**(b) Función objetivo (utilidad). Multiplicaremos todo por 500 **
+
+$$
+\begin{array}{ll}
+\max Z = 1,5(0,4x_1 + 0,4x_2+ 0,2x_4)+ 0.75(0.05x_1 + 0.1x_2 + 0.2x_3+ 0,65x_4)+ 2x_1 + 1.75x_2 +0.25x_4   \\  
+\end{array}
+$$ 
+**(c) Restricciones.**
+
+$$
+\begin{array}{ll}
+ 0,4x_1 + 0,4x_2+ 0,2x_4 \leq 200 \ \text{(Jugo A).} \\     
+ 0.05x_1 + 0.1x_2 + 0.2x_3+ 0,65x_4 \leq 400 \ \text{(Jugo B).} \\
+  x_1 \leq 100 \ \text{(Jugo C).} \\
+  x_2 \leq 50 \ \text{(Jugo D).} \\
+  x_4 \leq 800 \ \text{(Jugo E).} \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2, x_3, x_4 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+**(e) Transcribimos el modelo anterior a R.** 
+
+* Coeficientes de la función objetivo. 
+```{r}
+C <- c(100, 50, 25, 325)  
+  
+C  
+```
+* Matriz de coeficientes de las restricciones
+
+```{r}
+A <- matrix(c(0.4, 0.4, 0, 0.2,
+              0.05, 0.1, 0.2, 0.65,
+             1, 0, 0, 0,
+             0, 1, 0, 0,
+             0, 0, 0, 1), ncol = 4  , byrow = TRUE)
+
+A
+```
+* Direccion de las desigualdades de las restricciones
+
+```{r}
+D <- c("<=", "<=", "<=", "<=", "<=")
+
+D
+```  
+* Coeficientes lado derecho de las restricciones
+
+```{r}
+B <- c(200, 400, 100, 50, 800)
+
+B
+```
+**Plan optimo de produccion.** Resolvemos
+
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+**Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura).**
+
+```{r}
+Nsol$solution
+```
+
+$$
+\begin{array}{ll}
+\ \text{Podemos concluir que necesitamos 100 litros del jugo A y 607 Litros del juego E  }
+  \\  
+\end{array}
+$$ 
+

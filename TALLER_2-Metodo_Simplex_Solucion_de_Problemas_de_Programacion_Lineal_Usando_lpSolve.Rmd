@@ -1,0 +1,56 @@
+---
+title: "TALLER 2: MÉTODO SIMPLEX Y SOLUCIÓN DE PROBLEMAS DE PROGRAMACIÓN LINEAL USANDO lpSolve()"
+subtitle: "*Investigación de Operaciones - Ingeniería Civil Industrial - ADVANCE*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    fig_caption: true
+    number_sections: false
+    theme: cosmo
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+# **EJERCICIO 1.** 
+Usted es dueño de una fabrica de productos de plástico y tiene un importante contrato con una empresa de computadoras que implica la producción de cajas de plástico para impresoras portátiles. Las cajas de impresora se producen en dos máquinas de moldeo por inyección. La máquina $M100$ tiene una capacidad de producción de $20$ cajas de impresora por hora y la máquina $M200$ tiene una capacidad de $40$ cajas por hora. Ambas máquinas utilizan la misma materia prima química para producir las cajas de impresora; la $M100$ utiliza $40$ libras de materia prima por hora, y la $M200$ utiliza $50$ por hora. La empresa de computadoras requiere tantas cajas durante la semana que sigue como sea posible, y pagará $USD18$ por cada caja. Sin embargo, la siguiente semana es un período normal de vacaciones programadas para la mayor parte de los empleados de producción su empresa. Durante este tiempo, se efectúa el mantenimiento anual de todo el equipo de la planta y, debido al tiempo parado para mantenimiento, la $M100$ no estará disponible durante más de $15$ horas mientras que la $M200$ no estará disponible durante más de $10$ horas. Sin embargo, en razón del elevado costo de preparación involucrado en ambas máquinas, la administración requiere que las máquinas operen por lo menos durante $5$ horas. El proveedor de la materia química utilizada en el proceso de producción le ha informado que tendrá disponible un máximo de $1.000$ libras de la materia prima para la producción de la siguiente semana. El costo de la materia prima es de $USD6$ por libra. Además del costo de la materia prima, se estima que el costo horario de operación de la $M100$ y la $M200$ son de $USD50$ y $USD75$ dólares, respectivamente. Se requiere saber el número de horas que deberán estar operando las dos máquinas de modo de optimizar la utilidad por la venta de las cajas de plástico.
+
+(a) Plantee el problema como un Problema de Programación Lineal, definiendo claramente las variables de decisión, la función objetivo y las restricciones.  
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya. 
+
+<br>
+<br>
+
+# **EJERCICIO 2.** 
+De acuerdo a las recomendaciones de un veterinario, un granjero debe darle a sus aves diariamente una dieta mínima que consite en $3$ unidades de hierro y $4$ unidades de vitaminas. El alimento que el granjero suministra a sus aves corresponde a maíz y trigo. Se sabe que cada kilógramo de maíz proporciona $2.5$ unidades de hierro y $1$ unidad de vitaminas mientras que cada kilógramo de trigo proporciona $1$ unidad de hierro y $2$ de vitaminas. El kilo de maíz cuesta $\$0.3$ y el de trigo $\$0.52$.
+
+
+(a) Plantee el problema como un Problema de Programación Lineal, definiendo claramente las variables de decisión, la función objetivo y las restricciones.    
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+Por escasez en el mercado, el granjero dispone ahora de solo $1$ kilógramo diario de trigo.
+
+(c) Usando el Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+<br>
+<br>
+
+# **EJERCICIO 3.** 
+Un fabricante de cocteles debe preparar, con $5$ bebidas de fruta, al menos $500$ litros de un ponche que contenga por lo menos $20\%$ de jugo de naranja, $10\%$ de jugo de pomelo y $5\%$ de jugo de arándano. De la bebida de fruta $A$ se disponen $200$ litros, y ésta contiene $40\%$ de jugo de naranja y $40\%$ de jugo de pomelo. De la bebida de fruta $B$ se disponen $400$ litros, y ésta contiene $5\%$ de jugo de naranja, $10\%$ de jugo de pomelo y $20\%$ de jugo de arándano. De la bebida de fruta $C$ se disponen $100$ litros, y ésta contiene $100\%$ de jugo de naranja. De la bebida de fruta $D$ se disponen $50$ litros, y ésta contiene $100\%$ de jugo de pomelo. De la bebida de fruta $E$ se disponen $800$ litros, y ésta no contiene ninguno de los tres tipos de jugos. Los costos por litro de bebida de cada tipo son los siguientes: $\$1.50$, $\$0.75$, $\$2.00$, $\$1.75$ y $\$0.25$.
+
+(a) Plantee el modelo de programación lineal que se genera, definiendo claramente las variables de decisión, la función objetivo y las restricciones.
+(b) Usando la función `lp()` de la librería `lpSolve` resuelva, analice y concluya.
+
+

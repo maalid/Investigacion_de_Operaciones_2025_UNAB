@@ -1,0 +1,513 @@
+---
+title: "UNIDAD 5. ANÁLISIS DE SENSIBILIDAD"
+subtitle: "*Investigación de Operaciones - Ingeniería Civil Industrial - ADVANCE*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    fig_caption: true
+    number_sections: false
+    theme: cosmo
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
+
+----
+
+> ### PRESENTACIÓN
+En el presente capítulo se presenta el proceso deconsecuciónde soluciones óptimas de un problemas de programación lineal a partir de una solución óptima; cuando se realizan cambios en los parámetros iniciales del problema.
+>
+> ### OBJETIVO GENERAL
+Al finalizar el capítulo el estudiante debe estar en capacidad de obtener la solución óptima de un problema de programación lineal haciendo uso del análisis de sensibilidad, cuando ya se tiene la solución óptima de un problema y éste sufre cambios en los parámetros iniciales.
+>
+> ### OBJETIVOS ESPECÍFICOS
+* Obtener la solución óptima de un problema de programación lineal cuando hay modificación en la disponiblidad de recursos, dado que ya se tiene la solución óptima inicial.
+* Obtener la solución óptima de un problema de programación lineal cuando hay modificación en la asignación unitaria de recursos, dado que ya se tiene la solución óptima inicial.
+* Interpretar las nuevas soluciones.
+>
+> ### COMPETENCIAS
+El estudiante tendrá la capacidad de obtener nuevas soluciones a problemas de programación lineal, cuando el problema original tiene cambios en la información de sus parámetros.
+>
+> ### INDICADORES DE LOGRO
+El estudiante deberá demostrar el manejo e interpretación de las nuevas soluciones obtenidas a través del análisis de sensibilidad cuando un problema original presenta cambios en sus parámetros.
+>
+> ### CONOCIMIENTOS PREVIOS
+* Gauss Jordan. 
+* Vectores y matrices.
+
+----
+
+
+La solución óptima a un problema en el día de hoy; puede que no sea la óptima para cualquier tiempo futuro, porque con el paso del tiempo se generó algún cambio en los parámetros de los modelos.
+
+Afortunadamente, no hay que resolver el problema desde el principio para obtener una nueva solución óptima, dado un cambio en la información; pues para ello existe el análisis de sensibilidad.
+
+El presente capitulo trata justamente los problemas referentes a cambios en los parámetros de información generados con el paso del tiempo, pero las nuevas soluciones óptimas se obtienen a partir de la solución óptima del problema original sin necesidad de resolver todo el nuevo problema.
+
+Los posibles cambios que evalúa el análisis de sensibilidad son los siguientes:
+
+* Cambio en la disponibilidad de recursos.
+* Cambio en precios, utilidades o costos unitarios.
+* Cambio en la asignación unitaria de recursos.
+
+Como se dijo anteriormente todos los cambios se evalúan a partir de la solución óptima de la información inicial. Para obtener la solución óptima del problema inicial considere el siguiente ejercicio.
+
+# EJEMPLO 5.1.
+Una fábrica de muebles tiene una disponibilidad semanal de $150$ metros de tubo, $270$ metros de madera y $120$ tornillos. Con estos recursos la compañía desea fabricar camas dobles, camas sencillas y camarotes, los cuales pretende vender a $\$50$, $\$25$ y $\$20$ por unidad respectivamente. Se sabe que una cama doble consume $10$ metros de tubo, $5$ metros de madera y $8$ tornillos; una cama sencilla consume $6$ metros de tubo, $3$ metros de madera y $4$ tornillos; mientras que un camarote consume $15$ metros de tubo, $9$ metros de madera y $15$ tornillos.
+
+(a) Defina correctamente todas las variables de decisión.  
+(b) Escriba la función objetivo que optimiza la utilidad para la elaboración de los productos.  
+(c) Escriba las restricciones asociadas al problema.  
+(d) Plantee matemáticamente el modelo completo asociado al problema.  
+(e) Encuentre el plan óptimo de producción e interprete los resultados.  
+(f) Encuentre el valor óptimo de la función objetivo de acuerdo al plan óptimo de producción obtenido e interprete los resultados.  
+(g) Realice un análisis de sensibilidad completo.  
+(h) Si la empresa pudiese incrementar la cantidad de materia prima a usar, ¿cuál tendrá la prioridad? Explique fundamentadamente.  
+(i) Se sugiere aumentar la cantidad de madera y tubo al costo adicional de $\$15$$/m$ para cada una. ¿Es esto aconsejable? Explique fundamentadamente.  
+(j) Si la cantidad de madera se reduce en $100$ metros, ¿cómo impactará este incremento al ingreso óptimo? Explique fundamentadamente.  
+(k) Suponga que la disponibilidad de tubo se incrementa en $50$ metros, ¿cómo afectará este incremento al ingreso óptimo? Explique fundamentadamente.  
+(l) Suponga que los ingresos unitarios producidos para cada camarote se incrementan en $\$10$. ¿Permanecerá igual el óptimo actual? Explique fundamentadamente y calcule el valor de la función objetivo en este nuevo escenario.
+
+## SOLUCIÓN.
+**(a) Definicion de las variables de decision.** Se debe decidir cuántas camas doblees, camas sencillas y camarotes se deberán producir por semana para lograr un máximo de utilidad; por lo cual las variables de decisión son:
+
+$$
+\begin{array}{ll}
+x_1 : \text{Cantidad de camas dobles a producir por semana.} \\  
+x_2 : \text{Cantidad de camas sencillas a producir por semana.} \\   
+x_3 : \text{Cantidad de camarotes a producir por semana.}
+\end{array}
+$$
+
+**(b) Función objetivo (utilidad).**
+
+$$
+\begin{array}{ll}
+\max Z = 50x_1 + 25x_2 + 20x_3 \\  
+\end{array}
+$$
+
+**(c) Restricciones.**
+
+$$
+\begin{array}{ll}
+10x_1 + 6x_2 + 15x_3 \leq 150 \ \text{(metros de tubo).} \\     
+\ \ 5x_1 + 3x_2 + \ \ 9x_3 \leq 270 \ \text{(metros de madera).} \\  
+\ \ 8x_1 + 4x_2 + 15x_3 \leq 120 \ \text{(cantidad de tornillos).} \\   
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2, x_3 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+
+**(d) Modelo matemático completo.** El modelo matemático de programación lineal para la compañía queda de la siguiente manera: 
+
+$$
+\begin{array}{ll}
+\max Z = 50x_1 + 25x_2 + 20x_3 \\  
+\text{S.A.} \\  
+10x_1 + 6x_2 + 15x_3 \leq 150 \ \text{(metros de tubo).} \\     
+\ \ 5x_1 + 3x_2 + \ \ 9x_3 \leq 270 \ \text{(metros de madera).} \\  
+\ \ 8x_1 + 4x_2 + 15x_3 \leq 120 \ \text{(cantidad de tornillos).} \\   
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2, x_3 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+
+**(e) Transcribimos el modelo anterior a R.** 
+
+* Coeficientes de la función objetivo. 
+ 
+```{r}
+C <- c(50, 25, 20)  
+  
+C  
+```
+
+* Matriz de coeficientes de las restricciones
+
+```{r}
+A <- matrix(c(10, 6, 15,
+               5, 3,  9,
+               8, 4, 15), ncol = 3, byrow = TRUE)
+
+A
+```
+
+* Direccion de las desigualdades de las restricciones
+
+```{r}
+D <- c("<=", "<=", "<=")
+
+D
+```
+
+* Coeficientes lado derecho de las restricciones
+
+```{r}
+B <- c(150, 270, 120)
+
+B
+```
+
+* Resolvemos para encontrar el Plan optimo de produccion
+
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+
+* Rescatamos los Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura)
+
+```{r}
+sol$solution
+```
+
+* Camas dobles a producir por semana:  
+
+$$x_1 = 15$$
+
+* Camas sencillas a producir por semana:  
+
+$$x_2 = 0$$
+
+* Camarotes a producir por semana:  
+
+$$x_3 = 0$$
+
+* Holgura primera restricción: 
+
+```{r}
+10*sol$solution[1] + 6*sol$solution[2] + 15*sol$solution[3]
+```
+
+Se utilizan los 150 metros de tubo, por lo tanto la primera variable de holgura es:
+
+$$S_1 = 0$$
+
+* Holgura segunda restricción:
+
+```{r}
+5*sol$solution[1] + 3*sol$solution[2] + 9*sol$solution[3]
+```
+
+Se utilizan $75$ metros de madera, por lo tanto la segunda variable de holgura es:
+
+$$S_2 = 270 - 75 = 195$$ 
+
+Esto significa que sobran $195$ metros de madera.
+
+* Holgura tercera restriccion:
+
+```{r}
+8*sol$solution[1] + 4*sol$solution[2] + 15*sol$solution[3]
+```
+
+Se utilizan $120$ tornillos, por lo tanto la tercera variable de holgura es:
+
+$$S_3 = 0$$ 
+
+
+**(f) Valor optimo de la funcion objetivo.** La utilidad óptima que obtendrá la compañia al producir según el plan óptimo de producción encontrado es:
+
+```{r}
+sol
+```
+
+Es decir, se obtienen $Z^* = 750$ unidades monetarias de utilidad.
+
+
+**(g.1) Analisis de sensibilidad para los coeficientes de recursos (lado derecho de las restricciones, $b_i$)**. El incremento/decremento de una unidad en $b_i$, produce un aumento/disminucion en $Z^*$ igual al precio sombra $Y_i$. En efecto: $$Z'^* = Z^* \pm Y_i$$
+
+```{r}
+sol$duals[1:3]
+```
+
+* Aumento/decremento de $Z^*$ si $b_1$ aumenta/decrece en una unidad. 
+
+$$Y_1 = 5$$
+
+* Aumento/decremento de $Z^*$ si $b_2$ aumenta/decrece en una unidad.  
+
+$$Y_2 = 0$$
+
+* Aumento/decremento de $Z^*$ si $b_3$ aumenta/decrece en una unidad.  
+
+$$Y_3 = 0$$
+
+
+**(g.2) Analisis de sensibilidad para coeficientes de la funcion objetivo.** El plan de produccion optimo $X^*$ no cambia, pero si cambia $Z^*$ ya que cambian los coeficientes $c_j$.
+
+```{r}
+tibble(c = c("c1", "c2", "c3"),
+       min = sol$sens.coef.from,
+       max = sol$sens.coef.to)
+```
+
+* Los intervalos para los coeficientes $c_j$ son (los costos unitario de las actividades pueden cambiar en estos intervalo sin que se modifique el plan optimo de produccion):  
+
+$$
+\begin{array}{ll}
+41.666 \leq c_1 \leq \infty \\ 
+\ \ \ -\infty  \leq c_2 \leq 30 \\  
+\ \ \ -\infty  \leq c_3 \leq 75
+\end{array}
+$$
+
+**(g.3) Analisis de sensibilidad para los coeficientes $b_i$.** Interesa encontrar los intervalos $b_{i,min} \leq b_i \leq b_{i,max}$ para los $b_i$ en los cuales el precio sombra $Y_i$ sigue siendo valido. El plan de produccion optimo $X^*$ cambia y tambien cambia $Z^*$. 
+
+Para calcular estos intervalos es necesario resolver el problema dual
+
+```{r}
+A_dual <- t(A)
+
+B_dual <- C
+
+C_dual <- B
+
+D_dual <- c(">=", ">=", ">=")
+
+sol_dual <- lp(direction = "min", 
+               const.mat = A_dual,
+               const.rhs = B_dual,
+               objective.in = C_dual, 
+               const.dir = D_dual,
+               compute.sens = 1)
+```
+
+y extraer el intervalo de sensibilidad para los coeficientes $c'_{j}$ del problema dual. Dado que estos corresponden a los coeficientes $b_{i}$ en el problema primal, tendremos entonces los intervalos buscados. En efecto:
+
+```{r}
+tibble(b = c("b1", "b2", "b3"), 
+       min = sol_dual$sens.coef.from,
+       max = sol_dual$sens.coef.to)
+```
+
+Así, finalmente los intervalos $b_{i,min} \leq b_i \leq b_{i,max}$ para los coeficientes $b_i$ quedan como se presentan a continuación:
+
+$$
+\begin{array}{ll}
+\ \ \ \ 0 \leq b_1 \leq 150  \\
+\ \ 75 \leq b_2 \leq \ \ \infty \\   
+120 \leq b_3 \leq \ \ \infty
+\end{array}
+$$
+
+
+**(h)** Según los precios sombra para las materias primas $1$, $2$ y $3$, cada metro adicional de tubo aumenta el ingreso en $5$, en comparación con $0$ para la madera y $0$ para los tornillos. Por lo tanto, los tubos deben tener la prioridad.
+
+
+**(i)** Para los tubos, el ingreso neto adicional por minuto es $\$5 - \$15 = -\$10$, y para la madera, es $\$0 - \$15 = -\$15$. Por consiguiente, ninguno deben considerarse para el incremento de disponibilidad.
+
+
+**(j)** El precio sombra para la disponibilidad de madera es $\$0$ y es válido en el intervalo ($75$, $\infty$)metros. La disminución propuesta de $100$ metros queda comprendido dentro del intervalo de factibilidad. Por consiguiente, la disminucion del ingreso es $\$0*100 = \$0$, lo que significa que el ingreso total se no incrementará quedando en los $\$750$ ($= \$750 - \$0$).
+
+
+**(k)** El aumento propuesto de $50$ metros de tubo no es válido dentro del intervalo de factibilidad ($0$, $150$)metros, por lo que los precios sombra cambian. Esto significa que con la información disponible no es posible dar una respuesta de como cambia el ingreso óptimo con este cambio de escenario, por lo que habría que resolver desde cero el nuevo problema. En efecto:
+
+* Nuevo escenario donde se tienen $200$ metros de tubo disponible.
+
+```{r}
+B_k <- c(200, 270, 120)
+
+sol_k <- lp(direction = "max", 
+            const.mat = A,
+            const.rhs = B_k,
+            objective.in = C, 
+            const.dir = D,
+            compute.sens = 1)
+```
+
+* Utilidad óptima:
+
+```{r}
+sol_k
+```
+
+$$Z'^* = 750$$
+
+* Plan productivo óptimo.
+
+```{r}
+sol_k$solution
+```
+
+$$
+\begin{array}{ll}
+x'_{1} = 15 \\
+x'_{2} = 0 \\
+x'_{3} = 0
+\end{array}
+$$
+
+* Precios sombra.
+
+```{r}
+sol_k$duals[1:3]
+```
+
+$$
+\begin{array}{ll}
+Y'_{1} = 0 \\
+Y'_{2} = 0 \\
+Y'_{3} = 6.25
+\end{array}
+$$
+
+* Intervalo para coeficientes $c'_{j}$.
+
+```{r}
+tibble(c = c("c'1", "c'2", "c'3"), 
+       min = sol_k$sens.coef.from, 
+       max = sol_k$sens.coef.to)
+```
+
+de donde se obtiene:
+
+$$
+\begin{array}{ll}
+\ \ \ 50 \leq c'_1 \leq \ \ \infty \\ 
+-\infty  \leq c'_2 \leq 25.00 \\  
+-\infty  \leq c'_3 \leq 93.75
+\end{array}
+$$
+
+* Intervalo para coeficientes $b'_{i}$ (hay que resolver el problema dual).
+
+```{r}
+A_k_dual <- t(A)
+
+B_k_dual <- C
+
+C_k_dual <- B_k
+
+D_k_dual <- c(">=", ">=", ">=")
+
+sol_k_dual <- lp(direction = "min", 
+                 const.mat = A_k_dual,
+                 const.rhs = B_k_dual,
+                 objective.in = C_k_dual, 
+                 const.dir = D_k_dual,
+                 compute.sens = 1)
+```
+
+
+```{r}
+tibble(b = c("b'1", "b'2", "b'3"), 
+       min = sol_k_dual$sens.coef.from, 
+       max = sol_k_dual$sens.coef.to)
+```
+
+por lo tanto se obtiene:
+
+$$
+\begin{array}{ll}
+150 \leq b'_1 \leq \ \ \ \infty  \\
+\ \ 75 \leq b'_2 \leq \ \ \ \infty \\   
+\ \ \ \ 0 \leq b'_3 \leq 160
+\end{array}
+$$
+
+Asi, de los resultados anteriores podemos concluir que bajo este nuevo escenario tanto el plan productivo óptimo como la utilidad óptima y la utilización de recursos no cambian, sin embargo los precios sombra, y los intervalos para los coeficientes unitarios de utilidad ($c'_{j}$) y disponibilidad de recursos ($b'_{i}$) si cambian.
+
+
+**(l)** La solución $X^*$ permanecerá óptima porque el nuevo precio unitario estan dentro del intervalo permitido ($-\infty  \leq c_3 \leq 75$). Sin embargo, dado que no se producen camarotes en este plan optimo de producción, la utilidad obtenida seguirá siendo de $\$750$.
+
+
+# MÉTODO ALTERNATIVO
+Una manera más directa de obtener todo el análisis de sensibilidad resolviendo solamente el problema primal requiere de escribir el problema transformando las restricciones a igualdades. Recordar quee para esto hay que agregar variables de holgura, sobrante y/o auxiliares según sea necesario (ver las reglas de equivalencia en la sección 1.6).
+
+En efecto, usando como ejemplo el ejercicio anterior, tendremos que el problema transformado será:
+
+$$
+\begin{array}{ll}
+\max Z = 50x_1 + 25x_2 + 20x_3 + 0H_{1} + 0H_{2} + 0H_{3} \\  
+\text{S.A.} \\  
+10x_1 + 6x_2 + 15x_3 + H_{1} \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \leq 150 \ \text{(metros de tubo).} \\     
+\ \ 5x_1 + 3x_2 + \ \ 9x_3 \ \ \ \ \ \ \ \ \ \ + H_{2} \ \ \ \ \ \ \ \ \ \ \leq 270 \ \text{(metros de madera).} \\  
+\ \ 8x_1 + 4x_2 + 15x_3 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ + H_{3} \leq 120 \ \text{(cantidad de tornillos).} \\   
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_1, x_2, x_3 \geq \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+
+Luego, se ingresa a R de la misma forma que ya conocemos. En efecto:
+
+```{r}
+A2 <- matrix(c(10, 6, 15, 1, 0, 0,
+                5, 3,  9, 0, 1, 0,
+                8, 4, 15, 0, 0, 1), 
+             ncol = 6, 
+             byrow = TRUE)
+
+B2 <- c(150, 270, 120)
+
+C2 <- c(50, 25, 20, 0, 0, 0)
+
+D2 <- c("==", "==", "==")
+
+sol2 <- lp(direction = "max", 
+           const.mat = A2,
+           const.rhs = B2,
+           objective.in = C2, 
+           const.dir = D2,
+           compute.sens = 1)
+```
+
+* Utilidad óptima:
+
+```{r}
+sol2
+```
+
+* Plan productivo óptimo y análisis de recursos:
+
+```{r}
+tibble(variable = c("x1", "x2", "x3", "H1", "H2", "H3"),
+       cantidad = sol2$solution,
+       descripcion = c("Camas dobles", "Camas sencillas", "Camarotes", 
+                       "Holgura tubo", "Holgura madera", "Holgura tornillos"))
+```
+
+* Precios sombra:
+
+```{r}
+tibble(Yi = c("Y1", "Y2", "Y3"),
+       valor = sol2$duals[1:3])
+```
+
+
+* Intervalo para coeficientes $c_{j}$:
+
+```{r}
+tibble(c = c("c1", "c2", "c3"), 
+       min = sol2$sens.coef.from[1:3], 
+       max = sol2$sens.coef.to[1:3])
+```
+
+* Intervalo para coeficientes $b_{i}$:
+
+```{r}
+tibble(b = c("b1", "b2", "b3"), 
+       min = sol2$duals.from[1:3], 
+       max = sol2$duals.to[1:3])
+```
+
+

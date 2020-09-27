@@ -1,0 +1,512 @@
+---
+title: "Solemne 2: Método de Transporte, Transbordo y Asignación Usando lpSolve()"
+subtitle: "*Investigación de Operaciones - ADVANCE - UNAB*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    fig_caption: true
+    number_sections: false
+    theme: cosmo
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
+# **Ejercicio 1.** 
+La _NORTHERN AIRPLANE COMPANY_ construye aviones comerciales para varias líneas aéreas de todo el mundo. La última etapa del proceso de producción consiste en fabricar las turbinas de jet e instalarlas —una operación muy rápida— en la estructura del avión terminado. La compañía tiene varios contratos de trabajo que la obligan a entregar un número considerable de aviones en un futuro cercano y en este momento debe programar la producción de motores de turbina para los próximos cuatro meses.
+
+En la segunda columna de la tabla se indica la cantidad de motores que debe estar lista para su instalación a fin de cumplir con las fechas de entrega contratadas. De ella se desprende que el número acumulado de motores que deben producirse al final de los meses $1$, $2$, $3$ y $4$ debe ser por lo menos de $10$, $25$, $50$ y $70$ unidades, respectivamente.
+
+Las instalaciones disponibles para producir las turbinas varían de acuerdo con otros programas de producción, mantenimiento y renovación durante el periodo. Las diferencias mensuales debidas al número máximo que se puede producir y el costo unitario de producción (en millones de dólares) se presentan en la tercera y cuarta columnas de la tabla.
+
+Dadas las variaciones de los costos de producción, podría valer la pena fabricar algunas turbinas uno o más meses antes de su fecha de instalación; en la actualidad se estudia esta posibilidad. El inconveniente es que esas turbinas deberán almacenarse hasta que sean instaladas, pues la estructura de los aviones no estará lista antes. El costo de almacenamiento de cada turbina es de $15$ mil dólares por mes, como se muestra en la última columna de la tabla.
+
+<br>
+<center>
+
+![](Figura_1_Problema_1_Solemne_2.png ""){height="300px" width="500px"}
+
+</center>
+<br>
+
+El gerente de producción quiere desarrollar la programación del número de turbinas que se deben fabricar en cada uno de los cuatro meses, de manera que se minimicen los costos totales de producción y almacenamiento.
+
+(a) Formule este problema como uno de transporte.
+(b) Obtenga una solución óptima.
+(c) Interprete los resultados óptimos obtenidos.
+
+<br>
+<br>
+
+**Definicion de las variables de decisión.** Sean las siguientes las variables de decisión del problema:
+$$
+\begin{array}{ll}
+x_{11} : \text{Turbinas Producir mes 1 para el mes 1} \\ 
+x_{12} : \text{Turbinas producir mes 1 para el mes 2} \\  
+x_{13} : \text{Turbinas producir mes 1 para el mes 3} \\  
+x_{14} : \text{Turbinas producir mes 1 para el mes 4} \\ 
+x_{15} : \text{Turbinas producir mes 1 para el mes ficticio 5} \\
+x_{21} : \text{Turbinas Producir mes 2 para el mes 1} \\ 
+x_{22} : \text{Turbinas producir mes 2 para el mes 2} \\  
+x_{23} : \text{Turbinas producir mes 2 para el mes 3} \\  
+x_{24} : \text{Turbinas producir mes 2 para el mes 4} \\ 
+x_{25} : \text{Turbinas producir mes 2 para el mes ficticio 5} \\
+x_{31} : \text{Turbinas Producir mes 3 para el mes 1} \\ 
+x_{32} : \text{Turbinas producir mes 3 para el mes 2} \\  
+x_{33} : \text{Turbinas producir mes 3 para el mes 3} \\  
+x_{34} : \text{Turbinas producir mes 3 para el mes 4} \\ 
+x_{35} : \text{Turbinas producir mes 3 para el mes ficticio 5} \\
+x_{41} : \text{Turbinas Producir mes 1 para el mes 1} \\ 
+x_{42} : \text{Turbinas producir mes 1 para el mes 2} \\  
+x_{43} : \text{Turbinas producir mes 1 para el mes 3} \\  
+x_{44} : \text{Turbinas producir mes 1 para el mes 4} \\ 
+x_{45} : \text{Turbinas producir mes 1 para el mes ficticio 5} 
+\end{array}
+$$
+<br>
+
+**Modelo matemático completo.** En base a la definición anterior para las variables de decisión, y a la información entregada, matemáticamente el modelo de Programación Lineal a resolver es el siguiente: 
+$$
+\begin{array}{ll}
+\min Z = \ \ 1.08x_{11} + \ \ 1.095x_{12} + 1.11x_{13} + 1.125x_{14}+ 1.14x_{15} \\
+\ \ \ \ \ \ \ \ \ \ Mx_{21} + \ \ 1.11x_{22} + 1.125x_{23} + 1.14x_{24}+ 1.155x_{25} \\
+\ \ \ \ \ \ \ \ \ \ Mx_{31} + \ \ Mx_{32} + 1.1x_{33} + 1.115x_{34}+ 1.13x_{35} \\
+\ \ \ \ \ \ \ \ \ \ Mx_{41} + \ \ Mx_{42} + Mx_{43} + 1.13x_{44}+ 0x_{45} \\
+\text{S.A.} \\
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{12} + x_{13} + x_{14} + x_{15}= 25 \ \text{(oferta mes 1).} \\     
+\ \ \ \ \ \ \ \ \ \ x_{21} + x_{22} + x_{23} + x_{24} + x_{25}= 35 \ \text{(oferta mes 2).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{31} + x_{32} + x_{33} + x_{34} + x_{35}= 30 \ \text{(oferta mes 3).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{41} + x_{42} + x_{43} + x_{44} + x_{45}= 10 \ \text{(oferta mes 4).} \\  
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{21} + x_{31} + x_{41} \ \ \ \ \ \ \ \ \ \ = 10 \ \text{(demanda mes 1).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{12} + x_{22} + x_{32} + x_{42} \ \ \ \ \ \ \ \ \ \ = 15 \ \text{(demanda mes 2).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{13} + x_{23} + x_{33} + x_{43} \ \ \ \ \ \ \ \ \ \ = 25 \ \text{(demanda mes 3).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{14} + x_{24} + x_{34} + x_{44} \ \ \ \ \ \ \ \ \ \ = 20 \ \text{(demanda mes 4).} \\  
+\ \ \ \ \ \ \ \ \ \ x_{15} + x_{25} + x_{35} + x_{45} \ \ \ \ \ \ \ \ \ \ = 30 \ \text{(demanda mes ficticio 5).} \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  x_{ij} \geq \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+<br>
+<br>
+
+**Transcribimos el modelo anterior a R.** 
+
+* Matriz de costos
+```{r}
+cost_mat_1 <- matrix(c( 1.08,  1.095, 1.11, 1.125, 0,
+                        1000, 1.11, 1.125, 1.14, 0,
+                       1000, 1000, 1.1, 1.115, 0,
+                       1000, 1000, 1000, 1.13, 0), 
+                     ncol = 5, 
+                     byrow = TRUE)
+
+cost_mat_1
+```
+* Direccion de las desigualdades de las restricciones para las filas (oferta)
+```{r}
+row_constr_signs_1 <- c("==", "==", "==", "==")
+
+row_constr_signs_1
+```
+* Coeficientes de las restricciones para las filas (oferta)
+```{r}
+row_rhs_1 <- c(25, 35, 30, 10)
+
+row_rhs_1
+```
+* Direccion de las desigualdades de las restricciones para las columnas (demanda)
+```{r}
+col_constr_signs_1 <- c("==", "==", "==", "==", "==")
+
+col_constr_signs_1
+```
+* Coeficientes de las restricciones para las columnas (demanda)
+```{r}
+col_rhs_1 <- c(10, 15, 25, 20, 30)
+
+col_rhs_1
+```
+<br>
+
+**Resolvemos.** 
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+solucion_1 <- lp.transport(cost.mat = cost_mat_1,
+                           direction = "min",
+                           row.signs = row_constr_signs_1,
+                           row.rhs = row_rhs_1,
+                           col.signs = col_constr_signs_1,
+                           col.rhs = col_rhs_1, 
+                           presolve = 0,
+                           compute.sens = 0)
+
+solucion_1$solution
+```
+<br>
+
+**Valores óptimos para las variables de decisión.** (Plan optimo de transporte)
+
+* Turbinas realizadas el mes 1 para el mes 1.  
+
+$$x_{11} = 10$$
+* Turbinas realizadas el mes 1 para el mes 2.  
+
+$$x_{12} = 10$$
+* Turbinas realizadas el mes 1 para el mes 4.  
+
+$$x_{14} = 5$$
+* Turbinas realizadas el mes 2 para el mes 2.  
+
+$$x_{22} = 5$$
+* Turbinas realizadas el mes 2 para el mes 5 ficticio.  
+
+$$x_{25} = 30$$
+* Turbinas realizadas el mes 3 para el mes 3.  
+
+$$x_{33} = 25$$
+* Turbinas realizadas el mes 3 para el mes 4.  
+
+$$x_{34} = 5$$
+* Turbinas realizadas el mes 4 para el mes 4.  
+
+$$x_{44} = 10$$
+<br>
+
+**Costo mínimo asociado al plan de transporte.**
+```{r}
+solucion_1
+```
+
+$$ Z^* = \  77.3-millones-de-dolares $$
+Podemos-ver-que-el-resultado-optimo-es-de-77.3-millones-de-dolares-y-que-en-el-mes-numero-2-sobraran- 30 turbinas ficticias las cuales no realizaremos 
+
+# **Ejercicio 2.** 
+Electromaquinas Ltda. produce máquinas de coser en dos plantas ubicadas en $A$ y $B$; en las cuales hay una capacidad de producción semanal de $2.000$ y $3.000$ máquinas respectivamente. El producto es comercializado por tres distribuidores ubicados en $C$, $D$ y $E$; en los cuales se ha establecido una demanda de $1.500$, $1.700$ y $1.800$ máquinas de coser por semana. Además, se sabe que para llevar el producto a los distribuidores, se debe enviar a través de dos almacenes temporales ubicados en $F$ y $G$, y que no se puede enviar producto directamente desde las plantas a los distribuidores. El costo de transporte de cada máquina se ha evaluado de la siguiente forma: de $A$ a $F$ $\$5$, de $A$ a $G$ $\$8$, de $B$ a $F$ $\$3$, de $B$ a $G$ $\$11$, de $F$ a $G$ y viceversa $\$4$, de $F$ a $C$ $\$14$, de $F$ a $D$ $\$11$, de $F$ a $E$ $\$12$, de $G$ a $C$ $\$13$, de $G$ a $D$ $\$13$ y de $G$ a $E$ $\$10$.
+
+¿Cuál es el plan óptimo de envíos que minimiza los costos de la operación? No olvide definir, formular matemáticamente, resolver e interpretar.
+
+**Tenga en consideración que: como no se puede enviar producto directamente desde las plantas a los distribuidores, los nodos destinos no pueden ser origenes, y los nodos orígenes no pueden ser destino.**
+
+<br>
+**Definición de las variables de decisión.** Sean las siguientes las variables de decisión del problema transformado:
+$$
+\begin{array}{ll}
+x_{11} : \text{Maquinas de coser planta  A, enviados a la Planta A.} \\ 
+x_{12} : \text{Maquinas de coser planta  A, enviados a la Planta B.} \\  
+x_{13} : \text{Maquinas de coser planta  A, enviados a la Planta c.} \\  
+x_{14} : \text{Maquinas de coser planta  A, enviados a la Planta D.} \\
+x_{15} : \text{Maquinas de coser planta  A, enviados a la Planta E.} \\
+x_{16} : \text{Maquinas de coser planta  A, enviados a la Planta F.} \\
+x_{17} : \text{Maquinas de coser planta  A, enviados a la Planta G.} \\
+x_{21} : \text{Maquinas de coser planta  B, enviados a la Planta A.} \\ 
+x_{22} : \text{Maquinas de coser planta  B, enviados a la Planta B.} \\  
+x_{23} : \text{Maquinas de coser planta  B, enviados a la Planta c.} \\  
+x_{24} : \text{Maquinas de coser planta  B, enviados a la Planta D.} \\
+x_{25} : \text{Maquinas de coser planta  B, enviados a la Planta E.} \\
+x_{26} : \text{Maquinas de coser planta  B, enviados a la Planta F.} \\
+x_{27} : \text{Maquinas de coser planta  B, enviados a la Planta G.} \\
+x_{31} : \text{Maquinas de coser planta  C, enviados a la Planta A.} \\ 
+x_{32} : \text{Maquinas de coser planta  C, enviados a la Planta B.} \\  
+x_{33} : \text{Maquinas de coser planta  C, enviados a la Planta c.} \\  
+x_{34} : \text{Maquinas de coser planta  C, enviados a la Planta D.} \\
+x_{35} : \text{Maquinas de coser planta  C, enviados a la Planta E.} \\
+x_{36} : \text{Maquinas de coser planta  C, enviados a la Planta F.} \\
+x_{37} : \text{Maquinas de coser planta  C, enviados a la Planta G.} \\
+x_{41} : \text{Maquinas de coser planta  D, enviados a la Planta A.} \\ 
+x_{42} : \text{Maquinas de coser planta  D, enviados a la Planta B.} \\  
+x_{43} : \text{Maquinas de coser planta  D, enviados a la Planta c.} \\  
+x_{44} : \text{Maquinas de coser planta  D, enviados a la Planta D.} \\
+x_{45} : \text{Maquinas de coser planta  D, enviados a la Planta E.} \\
+x_{46} : \text{Maquinas de coser planta  D, enviados a la Planta F.} \\
+x_{47} : \text{Maquinas de coser planta  D, enviados a la Planta G.} \\
+x_{51} : \text{Maquinas de coser planta  E, enviados a la Planta A.} \\ 
+x_{52} : \text{Maquinas de coser planta  E, enviados a la Planta B.} \\  
+x_{53} : \text{Maquinas de coser planta  E, enviados a la Planta c.} \\  
+x_{54} : \text{Maquinas de coser planta  E, enviados a la Planta D.} \\
+x_{55} : \text{Maquinas de coser planta  E, enviados a la Planta E.} \\
+x_{56} : \text{Maquinas de coser planta  E, enviados a la Planta F.} \\
+x_{57} : \text{Maquinas de coser planta  E, enviados a la Planta G.} \\
+x_{61} : \text{Maquinas de coser planta  F, enviados a la Planta A.} \\ 
+x_{62} : \text{Maquinas de coser planta  F, enviados a la Planta B.} \\  
+x_{63} : \text{Maquinas de coser planta  F, enviados a la Planta c.} \\  
+x_{64} : \text{Maquinas de coser planta  F, enviados a la Planta D.} \\
+x_{65} : \text{Maquinas de coser planta  F, enviados a la Planta E.} \\
+x_{66} : \text{Maquinas de coser planta  F, enviados a la Planta F.} \\
+x_{67} : \text{Maquinas de coser planta  F, enviados a la Planta G.} \\
+x_{71} : \text{Maquinas de coser planta  G, enviados a la Planta A.} \\ 
+x_{72} : \text{Maquinas de coser planta  G, enviados a la Planta B.} \\  
+x_{73} : \text{Maquinas de coser planta  G, enviados a la Planta c.} \\  
+x_{74} : \text{Maquinas de coser planta  G, enviados a la Planta D.} \\
+x_{75} : \text{Maquinas de coser planta  G, enviados a la Planta E.} \\
+x_{76} : \text{Maquinas de coser planta  G, enviados a la Planta F.} \\
+x_{77} : \text{Maquinas de coser planta  G, enviados a la Planta G.} 
+\end{array}
+$$
+<br>
+
+**Modelo matemático completo.** En base a la definición anterior para las variables de decisión, y a la información entregada, matemáticamente el modelo de Programación Lineal a resolver es el siguiente: 
+$$
+\begin{array}{ll}
+\min Z = \ \              0x_{11} + \ \ 0x_{12} +    Mx_{13} +    Mx_{14} +    Mx_{15} +    5x_{16} +    8x_{17} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 0x_{21} + \ \ 0x_{22} +    Mx_{23} + \ \ Mx_{24} + \ \ Mx_{25} +    3x_{26} +    11x_{27} \\
+\ \ \ \ \ \ \ \ \ \ +    0x_{31} +    0x_{32} + \ \ 0x_{33} + \ \ 0x_{34} + \ \ 0x_{35} +    0x_{36} +    0x_{37} \\
+\ \ \ \ \ \ \ \ \ \ +    15x_{41} + \ \ 9x_{42} + \ \ 4x_{43} + \ \ 0x_{44} + \ \ 0x_{45} +    0x_{46} +    0x_{47} \\
+\ \ \ \ \ \ \ \ \ \ +    0x_{51} + \ \ 0x_{52} + \ \ 0x_{53} + \ \ 0x_{54} + \ \ 0x_{55} +    0x_{56} +    0x_{57} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 0x_{61} + \ \ 0x_{62} + \ \ 14x_{63} + \ \ 11x_{64} + \ \ 12x_{65} +    0x_{66} +    4x_{67} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 0x_{71} + \ \ 0x_{72} + \ \ 13x_{73} + \ \ 13x_{74} + \ \ 10x_{75} +    4x_{76} +    0x_{77} \\
+\text{S.A.} \\
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{12} + x_{13} + x_{14} + x_{15} + x_{16} + x_{17} \ \ \ \ \ \ \ \ \ = 7000 \ \text{(oferta origen A).} \\     
+\ \ \ \ \ \ \ \ \ \ x_{21} + x_{22} + x_{23} + x_{24} + x_{25} + x_{26} + x_{27} \ \ \ \ \ \ \ \ \ \ = 8000 \ \text{(oferta origen B).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{31} + x_{32} + x_{33} + x_{34} + x_{35} + x_{36} + x_{37}\ \ \ \ \ \ \ \ \ \ = 5000 \ \text{(oferta origen C).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{41} + x_{42} + x_{43} + x_{44} + x_{45} + x_{46} + x_{47}\ \ \ \ \ \ \ \ \ \ = 5000 \ \text{(oferta origen D).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{51} + x_{52} + x_{53} + x_{54} + x_{55} + x_{56} + x_{57}\ \ \ \ \ \ \ \ \ \ = 5000 \ \text{(oferta origen E).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{61} + x_{62} + x_{63} + x_{64} + x_{65} + x_{66} + x_{67}\ \ \ \ \ \ \ \ \ \ = \ \ 5000 \ \text{(oferta origen  F).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{71} + x_{72} + x_{73} + x_{74} + x_{75} + x_{76} + x_{77}\ \ \ \ \ \ \ \ \ \ = \ \ 5000\ \text{(oferta origen  G).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{21} + x_{31} + x_{41} + x_{51} + x_{61} + x_{71}= 5000 \ \text{(demanda destino A).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{12} + x_{22} + x_{32} + x_{42} + x_{52} + x_{62} + x_{72}= 5000 \ \text{(demanda destino B).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{13} + x_{23} + x_{33} + x_{43} + x_{53} + x_{63} + x_{73}= 6500 \ \text{(demanda destino C).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{14} + x_{24} + x_{34} + x_{44} + x_{54} + x_{64} + x_{74}= 6700 \ \text{(demanda destino D).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{15} + x_{25} + x_{35} + x_{45} + x_{55} + x_{65} + x_{75}= 6800 \ \text{(demanda destino E).} \\
+\ \ \ \ \ \ \ \ \ \ x_{16} + x_{26} + x_{36} + x_{46} + x_{56} + x_{66} + x_{76}= 5000 \ \text{(demanda destino F).} \\
+\ \ \ \ \ \ \ \ \ \ x_{17} + x_{27} + x_{37} + x_{47} + x_{57} + x_{67} + x_{77}= 5000 \ \text{(demanda destino G).} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{ij} \geq \ \ \ \ \ \ 0 \ \text{(no negatividad de las variables).}
+\end{array}
+$$
+<br>
+
+
+**Transcribimos el modelo anterior a R.** 
+
+* Matriz de costos
+```{r}
+cost_mat_3 <- matrix(c( 0,  10000, 10000, 10000, 10000, 5, 8,
+                        10000,  0, 10000, 10000, 10000, 3, 11,
+                        10000,  10000, 0, 10000, 10000, 10000, 10000,
+                        10000,  10000, 10000, 0, 10000, 10000, 10000,
+                        10000,  10000, 10000, 10000, 0, 10000, 10000,
+                        10000,  10000, 14, 11, 12, 0, 4,
+                        10000,  10000, 13, 13, 10, 4, 0), ncol = 7, byrow = TRUE)
+
+cost_mat_3
+```
+* Direccion de las desigualdades de las restricciones para las filas (oferta)
+```{r}
+row_constr_signs_3 <- c("==", "==", "==", "==", "==", "==", "==")
+
+row_constr_signs_3
+```
+* Coeficientes de las restricciones para las filas (oferta)
+```{r}
+row_rhs_3 <- c(7000, 8000, 5000, 5000, 5000, 5000,5000)
+
+row_rhs_3
+```
+* Direccion de las desigualdades de las restricciones para las columnas (demanda)
+```{r}
+col_constr_signs_3 <- c("==", "==", "==", "==", "==", "==", "==")
+
+col_constr_signs_3
+```
+* Coeficientes de las restricciones para las columnas (demanda)
+```{r}
+col_rhs_3 <- c(5000, 5000, 6500, 6700, 6800, 5000, 5000)
+
+col_rhs_3
+```
+
+<br>
+
+**Resolvemos.**
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+solucion_3 <- lp.transport(cost.mat = cost_mat_3,
+                           direction = "min",
+                           row.signs = row_constr_signs_3,
+                           row.rhs = row_rhs_3,
+                           col.signs = col_constr_signs_3,
+                           col.rhs = col_rhs_3, 
+                           presolve = 0)
+
+solucion_3$solution
+```
+
+<br>
+
+**Valores optimos para las variables de decision.** (Plan optimo de transporte)
+
+La solución encontrada se interpreta de la siguiente manera: obsérvese de la diagonal (mismo origen y mismo destino) que todas sus casillas absorbieron la reserva de $5000$ unidades, excepto la celda correspondiente a Planta F.  Este hecho es justamente lo que genera la operación de trasbordo, en este caso entre las plantas.
+
+* La planta A envía $2000$ unidades a la planta F Esta asignación es la que genera el trasbordo:  
+
+$$x_{16} = 2000$$
+* La planta B envía $3000$ unidades a la planta F Esta asignación es la que genera el trasbordo:  
+
+$$x_{26} = 3000$$
+* La planta F envía $1500$ unidades a la planta C Esta asignación es la que genera el trasbordo:  
+
+$$x_{63} = 1500$$
+* La planta F envía $1700$ unidades a la planta D Esta asignación es la que genera el trasbordo:  
+
+$$x_{64} = 1700$$
+* La planta F envía $1800$ unidades a la planta E Esta asignación es la que genera el trasbordo:  
+
+$$x_{65} = 1800$$
+<br>
+
+**Costo mínimo asociado al plan de transporte.**
+```{r}
+solucion_3
+```
+
+$$ Z^* = \$ 80300 $$
+
+Podemos ver que el almacen G no es recomendable utilizarlo ya que aumentara nuestros costos y nuestro costo minimo es de 80300$ 
+
+<br>
+
+# **Ejercicio 3.** 
+El entrenador de un equipo de natación debe asignar competidores para la prueba de 200 metros de relevo combinado que irá a las Olimpiadas Juveniles. Como muchos de sus mejores nadadores son rápidos en más de un estilo, no es fácil decidir cuál de ellos asignar a cada uno de los cuatro estilos. Los cinco mejores nadadores y sus mejores tiempos (en segundos) en cada estilo son los siguientes:
+
+<br>
+<center>
+
+![](Figura_1_Problema_3_Solemne_2.png ""){height="300px" width="500px"}
+
+</center>
+<br>
+
+El entrenador quiere determinar cómo asignar cuatro nadadores a los cuatro estilos de nado para minimizar la suma de los mejores tiempos correspondientes.
+
+(a) Formule este problema como uno de asignación.
+(b) Obtenga una solución óptima.
+(c) Interprete los resultados óptimos obtenidos.
+
+**Definicion de las variables de decision.** Sean las siguientes las variables de decisión del problema:
+$$
+\begin{array}{ll}
+x_{11} : \text{Tipo nado Dorso asignada a Carl.} \\ 
+x_{12} : \text{Tipo nado Dorso asignada a Chris.} \\  
+x_{13} : \text{Tipo nado Dorso asignada a David.} \\  
+x_{14} : \text{Tipo nado Dorso asignada a Tony} \\
+x_{15} : \text{Tipo nado Dorso asignada a Ken} \\
+x_{21} : \text{Tipo nado Pecho asignada a Carl.} \\  
+x_{22} : \text{Tipo nado Pecho asignada a Chris.} \\  
+x_{23} : \text{Tipo nado Pecho asignada a David.} \\  
+x_{24} : \text{Tipo nado Pecho asignada a Tony.} \\
+x_{25} : \text{Tipo nado Pecho asignada a Ken.} \\
+x_{31} : \text{Tipo nado Mariposa asignada a Carl.} \\ 
+x_{32} : \text{Tipo nado Mariposa asignada a Chris.} \\  
+x_{33} : \text{Tipo nado Mariposa asignada a David.} \\  
+x_{34} : \text{Tipo nado Mariposa asignada a Tony} \\
+x_{35} : \text{Tipo nado Mariposa asignada a Ken} \\
+x_{41} : \text{Tipo nado Libre asignada a Carl.} \\ 
+x_{42} : \text{Tipo nado Libre asignada a Chris.} \\  
+x_{43} : \text{Tipo nado Libre asignada a David.} \\  
+x_{44} : \text{Tipo nado Libre asignada a Tony} \\
+x_{45} : \text{Tipo nado Libre asignada a Ken} \\
+x_{51} : \text{Tipo No participa asignada a Carl.} \\ 
+x_{52} : \text{Tipo No participa asignada a Chris.} \\  
+x_{53} : \text{Tipo No participa asignada a David.} \\  
+x_{54} : \text{Tipo No participa asignada a Tony} \\
+x_{55} : \text{Tipo No participa asignada a Ken} 
+\end{array}
+$$
+**Modelo matemático completo.** En base a la definición anterior para las variables de decisión, y a la información entregada, matemáticamente el modelo de Programación Lineal a resolver es el siguiente: 
+$$
+\begin{array}{ll}
+\min Z = 37.7x_{11} + \ \ 32.9x_{12} + 33.8x_{13} + \ \ 37x_{14} + 35.4x_{15} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 43.4x_{21} + 33.1x_{22} + 42.2x_{23} + \ \ 34.7x_{24} + 41.8x_{25} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 33.3x_{31} + \ \ 28.5x_{32} + 38.9x_{33} + \ \ 30.4x_{34} + 33.6x_{35} \\
+\ \ \ \ \ \ \ \ \ \ + \ \ 29.2x_{41} + \ \ 26.4x_{42} + 29.6x_{43} + 28.5x_{44} + 31.1x_{45}\\ 
+\ \ \ \ \ \ \ \ \ \ + \ \ 0x_{51} + \ \ 0x_{52} + 0x_{53} + 0x_{54} + 0x_{55}\\ 
+\text{S.A.} \\
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{12} + x_{13} + x_{14} + x_{15} = 1 \ \ \text{(restricción de Tipo de nado dorso).} \\     
+\ \ \ \ \ \ \ \ \ \ x_{21} + x_{22} + x_{23} + x_{24} + x_{25} = 1 \ \ \text{(restricción de Tipo de nado pecho).} \\    
+\ \ \ \ \ \ \ \ \ \ x_{31} + x_{32} + x_{33} + x_{34} + x_{35} = 1 \ \ \text{(restricción de tipo de nado mariposa).} \\   
+\ \ \ \ \ \ \ \ \ \ x_{41} + x_{42} + x_{43} + x_{44} + x_{45} = 1 \ \ \text{(restricción de tipo de nado lire).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{51} + x_{52} + x_{53} + x_{54} + x_{55} = 1 \ \ \text{(restricción de No participa).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{11} + x_{21} + x_{31} + x_{41} + x_{51} = 1 \ \ \text{(restricción de Carl).} \\   
+\ \ \ \ \ \ \ \ \ \ x_{12} + x_{22} + x_{32} + x_{42} + x_{52} = 1 \ \ \text{(restricción de Chris).} \\       
+\ \ \ \ \ \ \ \ \ \ x_{13} + x_{23} + x_{33} + x_{43} + x_{53} = 1 \ \ \text{(restricción de David).} \\       
+\ \ \ \ \ \ \ \ \ \ x_{14} + x_{24} + x_{34} + x_{44} + x_{54} = 1 \ \ \text{(restricción de Tony).} \\ 
+\ \ \ \ \ \ \ \ \ \ x_{15} + x_{25} + x_{35} + x_{45} + x_{55} = 1 \ \ \text{(restricción de Ken).} \\ 
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{ij} = 0 \ \ \text{o} \ \ x_{ij} = 1 \ \ \text{(posibles valores de las variables).} 
+\end{array}
+$$
+<br>
+
+**Transcribimos el modelo anterior a R.** 
+
+* Matriz de costos
+```{r}
+cost_mat_4 <- matrix(c(37.7,  32.9, 33.8,  37, 35.4,
+                        43.4, 33.1, 42.2,  34.7, 41.8,
+                        33.3,  28.5, 38.9,  30.4, 33.6,
+                        29.2,  26.4, 29.6, 28.5, 31.1,
+                                        0, 0, 0, 0, 0), ncol = 5, byrow = TRUE)
+cost_mat_4
+```
+
+<br>
+**Resolvemos.**
+```{r}
+#install.packages("lpSolve")
+library(lpSolve)
+
+solucion_4 <- lp.assign(cost.mat = cost_mat_4, 
+                        direction = "min", 
+                        presolve = 0, 
+                        compute.sens = 0)
+
+
+solucion_4$solution
+```
+
+<br>
+
+**Valores optimos para las variables de decision.** (Plan óptimo de asignación)
+
+* Tipo nado Dorso asignada a David.  
+
+$$x_{13} = 1$$
+* Tipo nado Pecho asignada a Tony.  
+
+$$x_{24} = 1$$
+* Tipo nado Mariposa asignada a Chris..  
+
+$$x_{32} = 1$$
+* Tipo nado Libre asignada a Carl..  
+
+$$x_{41} = 1$$
+* Tipo No participa asignada a Ken.  
+
+$$x_{55} = 1$$
+$$Todas-las-otras-asiganaciones-son-0$$
+
+<br>
+
+**Costo mínimo asociado al plan de asignación.**
+```{r}
+solucion_4
+```
+El tiempo mínimo de preparación asociado a esta asignación óptima es de 126.2 Segundos
+
+$$Z^* = 126.2 \ \ \text{segundos}$$
+Por esto de los 5 nadadores escogeremos a carl, chrism, David y Tony en Nado libre, mariposa, dorso, pecho respectivamente en ese mismo orden y si realizan su mejor marca tendriamos un total de 126.2 segundos en el circuito 
+

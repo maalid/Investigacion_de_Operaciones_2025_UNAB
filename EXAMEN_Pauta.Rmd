@@ -1,0 +1,909 @@
+---
+title: "EXAMEN - PAUTA"
+subtitle: "*Investigación de Operaciones - ADVANCE - UNAB*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 4
+    fig_caption: true
+    number_sections: false
+    code_download: false
+    df_print: paged
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+<!-- ```{r setup, include = FALSE} -->
+<!-- knitr::opts_chunk$set(warning = FALSE, echo = FALSE) -->
+<!-- knitr::opts_chunk$set(warning = FALSE) -->
+<!-- ``` -->
+
+
+# **Ejercicio 1.** 
+Una compañía especializada en ornamentación llamada _Puro Hierro_ se dedica a la fabricación de puertas, rejas y ventanas; productos para los cuales ha establecido una utilidad de $\$6$, $\$2$ y $\$5$ por unidad respectivamente. Para la manufacturación de dichos artículos la empresa cuenta con una disponibilidad semanal de $300$ metros de lámina, $400$ metros de ángulo y $240$ metros de tubo. Además, se sabe que para producir una puerta se requieren $3$ metros de lámina, $2$ metros de ángulo y $2$ metros de tubo; para producir una reja se necesitan $5$ metros de lámina, $4$ metros de ángulo y $3$ metros de tubo; mientras que, para producir una ventana se requieren $24$ metros de lámina, $5$ metros de ángulo y un metro de tubo. El objetivo de la compañía es optimizar al máximo las utilidades producto de la fabricación y posterior venta de los productos confeccionados.
+
+a. Formule matemáticamente el problema anterior. Para esto, confeccione una tabla de resumen con la información entregada y defina las variables de decisión, la función objetivo, las restricciones. Finalmente, escriba el modelo matemático completo de programación lineal a resolver.
+
+* Tabla con información:
+
+|               |Puerta|Reja |Ventana|Disponibilidad/semana|
+|:-------------:|:----:|:---:|:-----:|:-------------------:|
+|Lamina         |3m    |5m   |24m    |300m                 |
+|Angulo         |2m    |4m   |5m     |400m                 |
+|Tubo           |2m    |3m   |1m     |240m                 |
+|utilidad/unidad|$\$6$ |$\$2$|$\$5$  |                     |
+
+* Variables de decisión del problema:
+
+$$
+\begin{array}{ll}
+x_{1}: \text{cantidad de puertas a producir por semana} \\
+x_{2}: \text{cantidad de rejas a producir por semana} \\
+x_{3}: \text{cantidad de ventanas a producir por semana}
+\end{array}
+$$
+
+* Modelo Matemático de Programación Lineal a resolver:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 5x_2 + 24x_3 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 4x_2 + \ \ 5x_3 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 3x_2 + \ \ \ \ x_3 \leq 240 \ \ \ \text{metros de tubo}  \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \  0\ \ \  \text{no negatividad de las variables}
+\end{array}
+$$
+
+----
+
+b. Usando la función `lpSolve` resuelva el modelo y conteste las siguientes preguntas: ¿Qué cantidad de cada uno de los artículos se deben fabricar? ¿Cuál es la utilidad óptima obtenida?
+
+* Coeficientes de la función objetivo.
+
+```{r echo=TRUE}
+C <- c(6, 2, 5)  
+  
+C  
+```
+
+* Matriz de coeficientes de las restricciones
+
+```{r echo=TRUE}
+A <- matrix(c(3, 5, 24,
+              2, 4,  5,
+              2, 3,  1), ncol = 3, byrow = TRUE)
+
+A
+```
+
+* Direccion de las desigualdades de las restricciones
+
+```{r echo=TRUE}
+D <- c("<=", "<=", "<=")
+
+D
+```
+
+* Coeficientes lado derecho de las restricciones
+
+```{r echo=TRUE}
+B <- c(300, 400, 240)
+
+B
+```
+
+* Resolvemos para encontrar el Plan optimo de produccion
+
+```{r echo=TRUE}
+#install.packages("lpSolve")
+library(lpSolve)
+
+sol <- lp(direction = "max", 
+          const.mat = A,
+          const.rhs = B,
+          objective.in = C, 
+          const.dir = D,
+          compute.sens = 1)
+```
+
+* Rescatamos los Valores optimos para las variables de decision (incluidas las variables auxiliares de holgura)
+
+```{r echo=TRUE}
+sol$solution
+```
+
+* Puertas a producir por semana:  
+
+$$x_1^* = 100$$
+
+* Rejas a producir por semana:  
+
+$$x_2^* = 0$$
+
+* Ventanas a producir por semana:  
+
+$$x_3^* = 0$$
+
+* Utilidad óptima:
+
+```{r echo=TRUE}
+sol
+```
+
+Se obtienen $Z^* = \$600$ unidades monetarias de utilidad al producir el plan productivo óptimo.
+
+----
+
+c. Bajo esta solución óptima de producción, ¿se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol$solution[1] + 5*sol$solution[2] + 24*sol$solution[3]
+```
+
+Se utilizan $300$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S_1 = 300 - 300 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol$solution[1] + 4*sol$solution[2] + 5*sol$solution[3]
+```
+
+Se utilizan $200$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S_2 = 400 - 200 = 200$$ 
+
+Esto significa que sobran $200$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol$solution[1] + 3*sol$solution[2] + 1*sol$solution[3]
+```
+
+Se utilizan $200$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S_3 = 240 - 200 = 40$$ 
+
+Esto significa que sobran $40$ metros de tubo.
+
+----
+
+Análisis de sensibilidad para el problema original:
+
+1. Analisis de sensibilidad para los coeficientes de recursos (lado derecho de las restricciones, $b_i$). El incremento/decremento de una unidad en $b_i$, produce un aumento/disminucion en $Z^*$ igual al precio sombra $Y_i$. En efecto: $$Z'^* = Z^* \pm Y_i$$
+
+```{r echo=TRUE}
+sol$duals[1:3]
+```
+
+  * Aumento/decremento de $Z^*$ si $b_1$ aumenta/decrece en una unidad. 
+
+$$Y_1 = 2$$
+
+  * Aumento/decremento de $Z^*$ si $b_2$ aumenta/decrece en una unidad.  
+
+$$Y_2 = 0$$
+
+  * Aumento/decremento de $Z^*$ si $b_3$ aumenta/decrece en una unidad.  
+
+$$Y_3 = 0$$
+
+
+2. Analisis de sensibilidad para coeficientes de la funcion objetivo. El plan de produccion optimo $x^*$ no cambia, pero si cambia $Z^*$ ya que cambian los coeficientes $c_j$.
+
+```{r echo=TRUE}
+tibble::tibble(c = c("c1", "c2", "c3"),
+       min = sol$sens.coef.from,
+       max = sol$sens.coef.to)
+```
+
+* Los intervalos para los coeficientes $c_j$ son (los costos unitario de las actividades pueden cambiar en estos intervalo sin que se modifique el plan optimo de produccion):  
+
+$$
+\begin{array}{ll}
+\ \ 1.2 < c_1 \leq \infty \\ 
+-\infty  \leq c_2 < 10 \\  
+-\infty  \leq c_3 < 48
+\end{array}
+$$
+
+3. Analisis de sensibilidad para los coeficientes $b_i$. Interesa encontrar los intervalos $b_{i,min} \leq b_i \leq b_{i,max}$ para los $b_i$ en los cuales el precio sombra $Y_i$ sigue siendo valido. El plan de produccion optimo $X^*$ cambia y tambien cambia $Z^*$. 
+
+* Resolvemos el problema dual:
+
+```{r echo=TRUE}
+A_dual <- t(A)
+
+B_dual <- C
+
+C_dual <- B
+
+D_dual <- c(">=", ">=", ">=")
+
+sol_dual <- lp(direction = "min", 
+               const.mat = A_dual,
+               const.rhs = B_dual,
+               objective.in = C_dual, 
+               const.dir = D_dual,
+               compute.sens = 1)
+```
+
+* Extraemos el intervalo de sensibilidad para los coeficientes $c'_{j}$ del problema dual. Dado que estos corresponden a los coeficientes $b_{i}$ en el problema primal, tendremos entonces los intervalos buscados. En efecto:
+
+```{r echo=TRUE}
+tibble::tibble(b = c("b1", "b2", "b3"), 
+       min = sol_dual$sens.coef.from,
+       max = sol_dual$sens.coef.to)
+```
+
+* Los intervalos $b_{i,min} \leq b_i \leq b_{i,max}$ para los coeficientes $b_i$ quedan como se presentan a continuación:
+
+$$
+\begin{array}{ll}
+\ \ \ \ 0 \leq b_1 < 360  \\
+200 < b_2 \leq \ \ \infty \\   
+200 < b_3 \leq \ \ \infty
+\end{array}
+$$
+
+----
+
+Debido a un problema con los proveedores de tubos, se estima que es muy probable que la disponibilidad de éstos disminuya en $50$ metros el próximo período. 
+
+d. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.
+
+* La nueva cantidad de tubos disponibles será $b_3' = 240 - 50 = 190$ metros. Este valor no se encuentra dentro del intervalo $(200, \infty]$ por lo que no se asegura que los precios sombra se mantengan en los valores originales encontrados. Es necesario resolver este nuevo escenario para encontrar los valores óptimos actualizados. En efecto:
+
+```{r echo=TRUE}
+B_d <- c(300, 400, 190)
+B_d
+
+sol_d <- lp(direction = "max", 
+            const.mat = A,
+            const.rhs = B_d,
+            objective.in = C, 
+            const.dir = D,
+            compute.sens = 1)
+sol_d$solution
+sol_d
+```
+
+$$
+\begin{array}{ll}
+x'^*_1 = 94.6666667 \\
+x'^*_2 = 0 \\
+x'^*_3 = 0.6666667 \\
+Z'^* = 571.3333
+\end{array}
+$$
+
+----
+
+e. ¿Existe alguna diferencia en términos de las cantidades de materia prima no consumida? Explique el resultado obtenido.  
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol_d$solution[1] + 5*sol_d$solution[2] + 24*sol_d$solution[3]
+```
+
+Se utilizan $300$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S'_1 = 300 - 300 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol_d$solution[1] + 4*sol_d$solution[2] + 5*sol_d$solution[3]
+```
+
+Se utilizan $192.6667$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S'_2 = 400 - 192.6667 = 207.3333$$ 
+
+Esto significa que sobran $207.3333$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol_d$solution[1] + 3*sol_d$solution[2] + 1*sol_d$solution[3]
+```
+
+Se utilizan $190$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S'_3 = 190 - 190 = 0$$ 
+
+Esto significa que sobran $0$ metros de tubo.
+
+----
+
+Debido a un error de conteo en la bodega de materias primas, el gerente de producción se dá cuenta que la cantidad de lámina es $90$ metros superior a la que originalmente se disponía.  
+
+f. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario. 
+
+* La nueva cantidad de lámina disponibles será $b_1'' = 300 + 90 = 390$ metros. Este valor no se encuentra dentro del intervalo $[0, 360)$ por lo que no se asegura que los precios sombra se mantengan en los valores originales encontrados. 
+
+----
+
+g. En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Es necesario resolver este nuevo escenario para encontrar los valores óptimos actualizados. En efecto:
+
+```{r echo=TRUE}
+B_g <- c(390, 400, 240)
+B_g
+
+sol_g <- lp(direction = "max", 
+            const.mat = A,
+            const.rhs = B_g,
+            objective.in = C, 
+            const.dir = D,
+            compute.sens = 1)
+sol_g$solution
+sol_g
+```
+
+$$
+\begin{array}{ll}
+x''^*_1 = 119.333333 \\
+x''^*_2 = 0 \\
+x''^*_3 = 1.333333 \\
+Z''^* = 722.6667
+\end{array}
+$$
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol_g$solution[1] + 5*sol_g$solution[2] + 24*sol_g$solution[3]
+```
+
+Se utilizan $390$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S''_1 = 390 - 390 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol_g$solution[1] + 4*sol_g$solution[2] + 5*sol_g$solution[3]
+```
+
+Se utilizan $245.3333$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S''_2 = 400 - 245.3333 = 154.6667$$ 
+
+Esto significa que sobran $154.6667$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol_g$solution[1] + 3*sol_g$solution[2] + 1*sol_g$solution[3]
+```
+
+Se utilizan $240$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S''_3 = 240 - 240 = 0$$ 
+
+----
+
+Desde el departamento de ventas, el equipo de análisis hace llegar un reporte indicando que la demanda de rejas probablemente aumente, por lo que suguieren incrementar en $\$2$ la utilidad de éstas. 
+
+h. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.
+
+* La nueva utilidad unitaria para las rejas será $c_2''' = 2 + 2 = 4$ unidades monetarias. Este valor se encuentra dentro del intervalo $[-\infty, 10)$ por lo que el plan productivo original no cambia. La utilidad óptima tampoco aumenta a ya que el plan óptimo original no contempla la fabricación de rejas, por lo tanto $Z'''^* = 100*6 + 0*4 + 0*5 = 600$ unidades monetarias.
+
+----
+
+i. ¿Existe alguna diferencia en términos de las cantidades de materia prima no consumida? Explique el resultado obtenido.  
+
+* Debido a que el plan óptimo original no cambia bajo este nuevo escenario, la materia prima consumida se mantiene igual a la original.
+
+----
+
+El mismo equipo de análisis del departamento de ventas recomienda ahora disminuir en $\$3$ la utilidad de cada puerta y aumentar en la misma cantidad la utilidad de cada ventana, respondiendo así a una baja en la demanda de las primeras y un aumento en la de las segundas.  
+
+j. Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* La nueva utilidad unitaria para las puertas será $c_1'''' = 6 - 3 = 3$ unidades monetarias. Este valor se encuentra dentro del intervalo $(1.2, \infty)$ por lo que el plan productivo original no cambia. 
+
+* La nueva utilidad unitaria para las ventanas será $c_3'''' = 5 + 3 = 8$ unidades monetarias. Este valor se encuentra dentro del intervalo $[-\infty, 48)$ por lo que el plan productivo original no cambia.
+
+* La utilidad óptima si cambia debido a la disminución en la utilidad unitaria de las puertas, por lo tanto $Z''''^* = 100*3 + 0*2 + 0*8 = 300$ unidades monetarias.
+
+----
+
+El gerente de producción está evaluando un cambio en el proceso de producción de las rejas. Este cambio implica que la asignación de recursos para cada reja se modifica, requiriendo ahora $7$ metros de lámina, $8$ metros de ángulo y $9$ metros de tubo.  
+
+k. Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 7x_2 + 24x_3 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 8x_2 + \ \ 5x_3 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 9x_2 + \ \ \ \ x_3 \leq 240 \ \ \ \text{metros de tubo}  \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \  0\ \ \  \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto, encontramos que son idénticos a los resultados del problema original:
+
+```{r echo=TRUE}
+A_k <- matrix(c(3, 7, 24,
+                2, 8,  5,
+                2, 9,  1), ncol = 3, byrow = TRUE)
+A_k
+
+sol_k <- lp(direction = "max", 
+            const.mat = A_k,
+            const.rhs = B,
+            objective.in = C, 
+            const.dir = D,
+            compute.sens = 1)
+sol_k$solution
+sol_k
+```
+
+$$
+\begin{array}{ll}
+x'''''^*_1 = 100 \\
+x'''''^*_2 = 0 \\
+x'''''^*_3 = 0 \\
+Z'''''^* = 600
+\end{array}
+$$
+
+----
+
+En base al resultado anterior, el gerente de producción decide evaluar otro cambio en el proceso de fabricación de las rejas, requiriendo ahora $5$ metros de ángulo, $34$ metros de tubo y ninguno de lámina. 
+
+l. Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 0x_2 + 24x_3 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 5x_2 + \ \ 5x_3 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 34x_2 + \ \ \ \ x_3 \leq 240 \ \ \ \text{metros de tubo}  \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \  0\ \ \  \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto:
+
+```{r echo=TRUE}
+A_l <- matrix(c(3, 0, 24,
+                2, 5,  5,
+                2, 34,  1), ncol = 3, byrow = TRUE)
+A_l
+
+sol_l <- lp(direction = "max", 
+            const.mat = A_l,
+            const.rhs = B,
+            objective.in = C, 
+            const.dir = D,
+            compute.sens = 1)
+sol_l$solution
+sol_l
+```
+
+$$
+\begin{array}{ll}
+x''''''^*_1 = 100 \\
+x''''''^*_2 = 1.176471 \\
+x''''''^*_3 = 0 \\
+Z''''''^* = 602.3529
+\end{array}
+$$
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol_l$solution[1] + 0*sol_l$solution[2] + 24*sol_l$solution[3]
+```
+
+Se utilizan $300$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S''''''_1 = 300 - 300 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol_l$solution[1] + 5*sol_l$solution[2] + 5*sol_l$solution[3]
+```
+
+Se utilizan $205.8824$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S''''''_2 = 400 - 205.8824 = 194.1176$$ 
+
+Esto significa que sobran $194.1176$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol_l$solution[1] + 34*sol_l$solution[2] + 1*sol_l$solution[3]
+```
+
+Se utilizan $240$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S''''''_3 = 240 - 240 = 0$$ 
+
+----
+
+Desde el departamento de Marketing, luego de realizar un estudio de mercado, se dan cuenta que los clientes están prefiriendo comprar los productos a la competencia ya que ésta los entrega pintados. Es necesario entonces evaluar si se pinta o no la producción, pero manteniendo constante las utilidades unitarias de cada producto. Para lograr esto, se planea utilizar semanalmente $5.000$ mililitros de pintura sobrante de otro proceso. Además, se sabe que una puerta consume $15$ mililitros de pintura, una reja requiere $50$ mililitros de pintura, mientras que una ventana necesita $20$ mililitros. 
+
+m. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario. ¿Es posible entonces entregar los productos pintados para así no perder clientes? Explique.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+\ \ 3x_1 + \ \ 5x_2 + 24x_3 \leq \ \ 300 \ \ \ \text{metros de lamina} \\
+\ \ 2x_2 + \ \ 4x_2 + \ \ 5x_3 \leq \ \ 400 \ \ \ \text{metros de angulo} \\
+\ \ 2x_1 + \ \ 3x_2 + \ \ \ \ x_3 \leq \ \ 240 \ \ \ \text{metros de tubo}  \\
+15x_1 + 50x_2 + 20x_3 \leq 5000 \ \ \ \text{mililitros de pintura}  \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \ \ \  0\ \ \  \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto:
+
+```{r echo=TRUE}
+D_m <- c("<=", "<=", "<=", "<=")
+D_m
+
+B_m <- c(300, 400, 240, 5000)
+B_m
+
+A_m <- matrix(c( 3,  5, 24,
+                 2,  4,  5,
+                 2,  3,  1,
+                15, 50, 20), ncol = 3, byrow = TRUE)
+A_m
+
+sol_m <- lp(direction = "max", 
+            const.mat = A_m,
+            const.rhs = B_m,
+            objective.in = C, 
+            const.dir = D_m,
+            compute.sens = 1)
+sol_m$solution
+sol_m
+```
+
+$$
+\begin{array}{ll}
+x'''''''^*_1 = 100 \\
+x'''''''^*_2 = 0 \\
+x'''''''^*_3 = 0 \\
+Z'''''''^* = 600
+\end{array}
+$$
+
+* Dado que la solución óptima no cambia en este escenario, si es posible satisfacer la producción de productos pintados.
+
+----
+
+Mediante otro estudio de mercado, se proyecta que es posible que en los próximos períodos, máximo se podrán vender $60$ puertas por semana.  
+
+n. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.
+
+* Dado que el plan óptimo original contempla la producción de $100$ puertas, este nuevo escenario dejará de ser óptimo.
+
+----
+
+o. En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 5x_2 + 24x_3 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 4x_2 + \ \ 5x_3 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 3x_2 + \ \ \ \ x_3 \leq 240 \ \ \ \text{metros de tubo} \\
+\ \ x_1 \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \leq \ \ 60 \ \ \ \text{cantidad máxima de puertas} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \ 0 \ \ \ \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados.
+
+```{r echo=TRUE}
+D_o <- c("<=", "<=", "<=", "<=")
+D_o
+
+B_o <- c(300, 400, 240, 60)
+B_o
+
+A_o <- matrix(c(3, 5, 24,
+                2, 4,  5,
+                2, 3,  1,
+                1, 0,  0), ncol = 3, byrow = TRUE)
+A_o
+
+sol_o <- lp(direction = "max", 
+            const.mat = A_o,
+            const.rhs = B_o,
+            objective.in = C, 
+            const.dir = D_o,
+            compute.sens = 1)
+sol_o$solution
+sol_o
+```
+
+$$
+\begin{array}{ll}
+x''''''''^*_1 = 60 \\
+x''''''''^*_2 = 24 \\
+x''''''''^*_3 = 0 \\
+Z''''''''^* = 408
+\end{array}
+$$
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol_o$solution[1] + 5*sol_o$solution[2] + 24*sol_o$solution[3]
+```
+
+Se utilizan $300$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S''''''''_1 = 300 - 300 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol_o$solution[1] + 4*sol_o$solution[2] + 5*sol_o$solution[3]
+```
+
+Se utilizan $216$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S''''''''_2 = 400 - 216 = 184$$ 
+
+Esto significa que sobran $184$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol_o$solution[1] + 3*sol_o$solution[2] + 1*sol_o$solution[3]
+```
+
+Se utilizan $192$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S''''''''_3 = 240 - 192 = 48$$ 
+
+Esto significa que sobran $48$ metros de tubo.
+
+* Maximo de puertas:
+
+```{r echo=TRUE}
+1*sol_o$solution[1] + 0*sol_o$solution[2] + 0*sol_o$solution[3]
+```
+
+
+$$S''''''''_4 = 60 - 60 = 0$$ 
+
+Esto significa que se fabrican las $60$ puertas.
+
+----
+
+En un tercer estudio, el departamento de Marketing concluyó que en los próximos períodos es muy probable que la cantidad de ventanas a vender sea mínimo $60$ unidades semanales.  
+
+p. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 5x_2 + 24x_3 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 4x_2 + \ \ 5x_3 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 3x_2 + \ \ \ \ x_3 \leq 240 \ \ \ \text{metros de tubo} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_3 \geq \ \ 60 \ \ \ \text{cantidad mínima de ventanas} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3 \geq \ \ \ \ 0 \ \ \ \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto, encontramos que son idénticos a los resultados del problema original:
+
+```{r echo=TRUE}
+D_p <- c("<=", "<=", "<=", ">=")
+D_p
+
+B_p <- c(300, 400, 240, 60)
+B_p
+
+A_p <- matrix(c(3, 5, 24,
+                2, 4,  5,
+                2, 3,  1,
+                0, 0,  1), ncol = 3, byrow = TRUE)
+A_p
+
+
+sol_p <- lp(direction = "max", 
+            const.mat = A_p,
+            const.rhs = B_p,
+            objective.in = C, 
+            const.dir = D_p,
+            compute.sens = 1)
+sol_p$solution
+sol_p
+```
+
+* No hay solución óptima factible para este escenario. Esto era de espeerar ya que el problema original no contempla la producción de ventanas.
+
+----
+
+q. En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+* Dado que no hay solución óptima factible para este escenario, no hay cambios ni análisis nuevo que hacer.
+
+----
+
+La Gerencia esta evaluando la posibilidad de fabricar un nuevo producto, sillas metálicas, a las cuales se les ha asignado una utilidad unitaria de $\$3$ y se ha establecido que cada una requiere $5$ metros de lámina, $10$ metros de ángulo y $24$ metros de tubo.  
+
+r. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario. ¿En base al resultado obtenido, ¿es rentable producir sillas? Explique.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 + 3x_4 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 5x_2 + 24x_3 + \ \ 5x_4 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 4x_2 + \ \ 5x_3 + 10x_4 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 3x_2 + \ \ \ \ x_3 + 24x_4 \leq 240 \ \ \ \text{metros de tubo} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3, x_4 \geq \ \ \ \ 0 \ \ \ \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto, el plan productivo óptimo no cambia:
+
+```{r echo=TRUE}
+C_r <- c(6, 2, 5, 3)
+C_r
+
+A_r <- matrix(c(3, 5, 24,  5,
+                2, 4,  5, 10,
+                2, 3,  1, 24), ncol = 4, byrow = TRUE)
+A_r
+
+
+sol_r <- lp(direction = "max", 
+            const.mat = A_r,
+            const.rhs = B,
+            objective.in = C_r, 
+            const.dir = D,
+            compute.sens = 1)
+sol_r$solution
+sol_r
+```
+
+$$
+\begin{array}{ll}
+x'''''''''^*_1 = 100 \\
+x'''''''''^*_2 = 0 \\
+x'''''''''^*_3 = 0 \\
+x'''''''''^*_4 = 0 \\
+Z'''''''''^* = 600
+\end{array}
+$$
+
+----
+
+El Gerente está obsesionado con agregar un nuevo producto para ser más competitivo. Esta vez, encarga que se analice la factibilidad de fabricar lockers, para cada uno de los cuales se ha estimado una utilidad de $\$10$. Además, se estableció que cada unidad consume $3$ metros de lámina, $2$ metros de ángulo y $5$ metros de tubo. 
+
+s. Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.
+
+* Dado que la utilidad unitaria de los lockers es mayor a la de las puertas, es posible que la solución óptima cambie, privilegiando la producción de lockers.
+
+---- 
+
+t. En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas. ¿Es recomendable incluir este nuevo producto? Explique.
+
+* Modelo Matemático de Programación Lineal a resolver para este escenario:
+
+$$
+\begin{array}{ll}
+\max Z = 6x_1 + 2x_2 + 5x_3 + 10x_4 \ \ \ \text{utilidad total} \\
+\text{S.T.} \\
+3x_1 + 5x_2 + 24x_3 + 3x_4 \leq 300 \ \ \ \text{metros de lamina} \\
+2x_2 + 4x_2 + \ \ 5x_3 + 2x_4 \leq 400 \ \ \ \text{metros de angulo} \\
+2x_1 + 3x_2 + \ \ \ \ x_3 + 5x_4 \leq 240 \ \ \ \text{metros de tubo} \\
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x_{1}, x_2, x_3, x_4 \geq \ \ \ \ 0 \ \ \ \text{no negatividad de las variables}
+\end{array}
+$$
+
+* Resolvemos este nuevo escenario para encontrar los valores óptimos actualizados. En efecto:
+
+```{r echo=TRUE}
+C_t <- c(6, 2, 5, 10)
+C_t
+
+A_t <- matrix(c(3, 5, 24, 3,
+                2, 4,  5, 2,
+                2, 3,  1, 5), ncol = 4, byrow = TRUE)
+A_t
+
+
+sol_t <- lp(direction = "max", 
+            const.mat = A_t,
+            const.rhs = B,
+            objective.in = C_t, 
+            const.dir = D,
+            compute.sens = 1)
+sol_t$solution
+sol_t
+```
+
+$$
+\begin{array}{ll}
+x''''''''''^*_1 = 86.66667 \\
+x''''''''''^*_2 = 0 \\
+x''''''''''^*_3 = 0 \\
+x''''''''''^*_4 = 13.33333 \\
+Z''''''''''^* = 653.3333
+\end{array}
+$$
+
+* Utilización de lamina:
+
+```{r echo=TRUE}
+3*sol_t$solution[1] + 5*sol_t$solution[2] + 24*sol_t$solution[3] + 3*sol_t$solution[4]
+```
+
+Se utilizan $300$ metros de lamina, por lo tanto la primera variable de holgura es:
+
+$$S''''''''''_1 = 300 - 300 = 0$$
+
+* Utilización de ángulo:
+
+```{r echo=TRUE}
+2*sol_t$solution[1] + 4*sol_t$solution[2] + 5*sol_t$solution[3] + 2*sol_t$solution[4]
+```
+
+Se utilizan $200$ metros de angulo, por lo tanto la segunda variable de holgura es:
+
+$$S''''''''''_2 = 400 - 200 = 200$$ 
+
+Esto significa que sobran $200$ metros de angulo.
+
+* Utilización de tubo:
+
+```{r echo=TRUE}
+2*sol_t$solution[1] + 3*sol_t$solution[2] + 1*sol_t$solution[3] + 5*sol_t$solution[4]
+```
+
+Se utilizan $240$ metros de tubo, por lo tanto la tercera variable de holgura es:
+
+$$S''''''''''_3 = 240 - 240 = 0$$ 
+
+Esto significa que sobran $0$ metros de tubo.
+
+
+-----
+**IMPORTANTE: Debe usar análisis de sensibilidad para analizar y responder las preguntas que así lo requieran.**

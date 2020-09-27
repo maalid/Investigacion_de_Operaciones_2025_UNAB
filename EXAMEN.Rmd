@@ -1,0 +1,87 @@
+---
+title: "EXAMEN"
+subtitle: "*Investigación de Operaciones - ADVANCE - UNAB*"
+author: "Marcelo Alid-Vaccarezza"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    toc_depth: 3
+    fig_caption: true
+    number_sections: false
+    theme: cosmo
+---
+
+<div style="text-align: justify">
+<br>
+<br>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
+# **Ejercicio 1.** 
+Una compañía especializada en ornamentación llamada _Puro Hierro_ se dedica a la fabricación de puertas, rejas y ventanas; productos para los cuales ha establecido una utilidad de $\$6$, $\$2$ y $\$5$ por unidad respectivamente. Para la manufacturación de dichos artículos la empresa cuenta con una disponibilidad semanal de $300$ metros de lámina, $400$ metros de ángulo y $240$ metros de tubo. Además, se sabe que para producir una puerta se requieren $3$ metros de lámina, $2$ metros de ángulo y $2$ metros de tubo; para producir una reja se necesitan $5$ metros de lámina, $4$ metros de ángulo y $3$ metros de tubo; mientras que, para producir una ventana se requieren $24$ metros de lámina, $5$ metros de ángulo y un metro de tubo. El objetivo de la compañía es optimizar al máximo las utilidades producto de la fabricación y posterior venta de los productos confeccionados.
+
+(a) Formule matemáticamente el problema anterior. Para esto, confeccione una tabla de resumen con la información entregada y defina las variables de decisión, la función objetivo, las restricciones. Finalmente, escriba el modelo matemático completo de programación lineal a resolver.  
+(b) Usando la función `lpSolve` resuelva el modelo y conteste las siguientes preguntas: ¿Qué cantidad de cada uno de los artículos se deben fabricar? ¿Cuál es la utilidad óptima obtenida?  
+(c) Bajo esta solución óptima de producción, ¿se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.  
+
+Debido a un problema con los proveedores de tubos, se estima que es muy probable que la disponibilidad de éstos disminuya en $50$ metros el próximo período. 
+
+(d) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(e) ¿Existe alguna diferencia en términos de las cantidades de materia prima no consumida? Explique el resultado obtenido.  
+
+Debido a un error de conteo en la bodega de materias primas, el gerente de producción se dá cuenta que la cantidad de lámina es $90$ metros superior a la que originalmente se disponía.  
+
+(f) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(g) En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+Desde el departamento de ventas, el equipo de análisis hace llegar un reporte indicando que la demanda de rejas probablemente aumente, por lo que suguieren incrementar en $\$2$ la utilidad de éstas. 
+
+(h) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(i) ¿Existe alguna diferencia en términos de las cantidades de materia prima no consumida? Explique el resultado obtenido.  
+
+El mismo equipo de análisis del departamento de ventas recomienda ahora disminuir en $\$3$ la utilidad de cada puerta y aumentar en la misma cantidad la utilidad de cada ventana, respondiendo así a una baja en la demanda de las primeras y un aumento en la de las segundas.  
+
+(j) Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+El gerente de producción está evaluando un cambio en el proceso de producción de las rejas. Este cambio implica que la asignación de recursos para cada reja se modifica, requiriendo ahora $7$ metros de lámina, $8$ metros de ángulo y $9$ metros de tubo.  
+
+(k) Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.  
+
+En base al resultado anterior, el gerente de producción decide evaluar otro cambio en el proceso de fabricación de las rejas, requiriendo ahora $5$ metros de ángulo, $34 metros de tubo y ninguno de lámina. 
+
+(l) Haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+Desde el departamento de Marketing, luego de realizar un estudio de mercado, se dan cuenta que los clientes están prefiriendo comprar los productos a la competencia ya que ésta los entrega pintados. Es necesario entonces evaluar si se pinta o no la producción, pero manteniendo constante las utilidades unitarias de cada producto. Para lograr esto, se planea utilizar semanalmente $5.000$ mililitros de pintura sobrante de otro proceso. Además, se sabe que una puerta consume $15$ mililitros de pintura, una reja requiere $50$ mililitros de pintura, mientras que una ventana necesita $20$ mililitros. 
+
+(m) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario. ¿Es posible entonces entregar los productos pintados para así no perder clientes? Explique.
+
+Mediante otro estudio de mercado, se proyecta que es posible que en los próximos períodos, máximo se podrán vender $60$ puertas por semana.  
+
+(n) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(o) En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+En un tercer estudio, el departamento de Marketing concluyó que en los próximos períodos es muy probable que la cantidad de ventanas a vender sea mínimo $60$ unidades semanales.  
+
+(p) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(q) En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas.
+
+La Gerencia esta evaluando la posibilidad de fabricar un nuevo producto, sillas metálicas, a las cuales se les ha asignado una utilidad unitaria de $\$3$ y se ha establecido que cada una requiere $5$ metros de lámina, $10$ metros de ángulo y $24$ metros de tubo.  
+
+(r) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario. ¿En base al resultado obtenido, ¿es rentable producir sillas? Explique.
+
+El Gerente está obsesionado con agregar un nuevo producto para ser más competitivo. Esta vez, encarga que se analice la factibilidad de fabricar lockers, para cada uno de los cuales se ha estimado una utilidad de $\$10$. Además, se estableció que cada unidad consume $3$ metros de lámina, $2$ metros de ángulo y $5$ metros de tubo. 
+
+(s) Analice si la solución óptima original sigue siendo óptima bajo este posible escenario.  
+(t) En el caso que la solución deje de ser óptima, haga los cambios necesarios al modelo matemático y resuelva. ¿Qué cantidad de cada uno de los artículos se deben fabricar ahora? ¿Cuál es la utilidad óptima obtenida? ¿Se consumen todas las materias primas disponibles? En el caso que alguna(s) de ellas no sea(n) completamente consumida(s), diga cúanto de ésta(s) no son utilizadas. ¿Es recomendable incluir este nuevo producto? Explique.
+
+
+-----
+**IMPORTANTE: Debe usar análisis de sensibilidad para analizar y responder las preguntas que así lo requieran.**
